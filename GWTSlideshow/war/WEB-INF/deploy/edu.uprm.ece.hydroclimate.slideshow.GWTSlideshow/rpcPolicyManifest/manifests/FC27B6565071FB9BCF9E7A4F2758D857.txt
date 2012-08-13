@@ -1,0 +1,2 @@
+serviceClass: edu.uprm.ece.hydroclimate.slideshow.client.FileService
+path: FF576F39B5FFE6ACA1EA907D7AE1A6F3.gwt.rpc
