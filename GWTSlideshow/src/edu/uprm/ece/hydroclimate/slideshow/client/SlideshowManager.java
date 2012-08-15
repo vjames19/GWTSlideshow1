@@ -15,6 +15,7 @@ public class SlideshowManager {
 	private List<ImageDescription> images;
 	private final Label description;
 	private Integer index = 0;
+	private boolean running = false;
 	public SlideshowManager(final Image image, final List<ImageDescription> images,final Label description, int delay)
 	{
 		this.image = image;
@@ -34,19 +35,23 @@ public class SlideshowManager {
 			}
 		};
 		
-		startRepeated();
+		
 	}
 	
 	public void startRepeated()
 	{
+		if(isRunning())
+			return;
 		timer.scheduleRepeating(delay * MILLIS);
-		
+		running = true;
 	}
 	
 	public void stop()
 	{
+		if(!isRunning())
+			return;
 		timer.cancel();
-		
+		running = false;
 	}
 	
 	public void displayNextSlide()
@@ -65,6 +70,11 @@ public class SlideshowManager {
 	{
 		image.setUrl(images.get(index).getUrl());
 		description.setText(images.get(index).getUrl());
+	}
+	
+	public boolean isRunning()
+	{
+		return running;
 	}
 	
 	

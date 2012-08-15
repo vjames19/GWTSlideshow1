@@ -22,60 +22,65 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.user.datepicker.client.DateBox.DefaultFormat;
-import com.google.gwt.i18n.client.DateTimeFormat;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class GWTSlideshow implements EntryPoint, ClickHandler {
-	
+
 	private VerticalPanel mainPanel;
 	private FlexTable inputTable;
 	private DateBox fromDateBox, toDateBox;
 	private Button generateButton;
 	private ListBox variableListBox;
-	private DockLayoutPanel slidePanel;
-	private Label slideTitleLabel;
 	private Image baseImage;
 	private Button play, next, previous;
-	private Label imageDescriptionLabel;
 	private FileServiceAsync fileSvc = FileService.Util.getInstance();
 	private SlideshowManager slideMan;
-	
+	private HorizontalPanel horizontalPanel;
+	private Button playButton;
+	private Button nextButton;
+	private Button previousButton;
+
 	/**
 	 * @wbp.parser.entryPoint
 	 */
 	public void onModuleLoad() {
-		
+
 		RootLayoutPanel rp = RootLayoutPanel.get();
-		rp.setSize("100%", "");
-		
-		
-		
+		rp.setSize("100%", Window.getClientHeight()+"px");
+
+		Label fromLabel, toLabel, variableNameLabel;
+
+
+
+
 		mainPanel = new VerticalPanel();
+		mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		rp.add(mainPanel);
-		rp.setWidgetTopHeight(mainPanel, 0.0, Unit.PX, 543.0, Unit.PX);
+		rp.setWidgetTopBottom(mainPanel, 0.0, Unit.PX, 123.0, Unit.PX);
 		mainPanel.setWidth("100%");
 		rp.setWidgetLeftRight(mainPanel, 0.0, Unit.PCT, 0.0, Unit.PX);
-		
-		
+
+
 		//Setup input area
 		inputTable = new FlexTable();
-		
-		Label fromLabel, toLabel, variableNameLabel;
 		fromLabel = new Label("From:");
 		toLabel = new Label("To:");
 		variableNameLabel = new Label("Variable:");
@@ -85,12 +90,12 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 		toDateBox.setFormat(new DefaultFormat(DateTimeFormat.getShortDateFormat()));
 		fromDateBox.getDatePicker().setValue(new Date());
 		toDateBox.getDatePicker().setValue(new Date());
-		
+
 		inputTable.setWidget(0, 0, fromLabel);
 		inputTable.setWidget(0, 1, toLabel);
 		inputTable.setWidget(1,0,fromDateBox);
 		inputTable.setWidget(1,1,toDateBox);
-		
+
 		generateButton = new Button("Generate");
 		generateButton.setEnabled(false);
 		variableListBox = new ListBox();
@@ -101,110 +106,162 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 		generateButton.setWidth("100%");
 		mainPanel.add(inputTable);
 		inputTable.getFlexCellFormatter().setColSpan(1, 2, 2);
-		
-		slidePanel = new DockLayoutPanel(Unit.PCT);
-		slidePanel.setStyleName("slidePanel");
-		mainPanel.add(slidePanel);
-		slidePanel.setSize("692px", "443px");
-		
-		
-		//TODO: setup slideshow area
-		slideTitleLabel = new Label("Variable Name");
-		slideTitleLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		slidePanel.addNorth(slideTitleLabel,5.0);
-		slideTitleLabel.setWidth("100%");
-		
-		
-		
-		
-		imageDescriptionLabel = new Label("Description");
-		imageDescriptionLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		slidePanel.addSouth(imageDescriptionLabel, 5.0);
-		imageDescriptionLabel.setWidth("100%");
-		
-		baseImage = new Image();
+
+		baseImage = new Image("images/Koala.jpg");
+		mainPanel.add(baseImage);
 		baseImage.setVisible(true);
-		slidePanel.add(baseImage);
-		baseImage.setSize("500px", "500px");
-		
-	
-		
+		baseImage.setPixelSize(800,500);
+
+		horizontalPanel = new HorizontalPanel();
+		mainPanel.add(horizontalPanel);
+		mainPanel.setCellHorizontalAlignment(horizontalPanel, HasHorizontalAlignment.ALIGN_CENTER);
+		horizontalPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		horizontalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+
+		previousButton = new Button("previous");
+		previousButton.addClickHandler(this);
+		horizontalPanel.add(previousButton);
+		horizontalPanel.setCellHorizontalAlignment(previousButton, HasHorizontalAlignment.ALIGN_CENTER);
+
+		playButton = new Button("play");
+		playButton.addClickHandler(this);
+		horizontalPanel.add(playButton);
+		horizontalPanel.setCellHorizontalAlignment(playButton, HasHorizontalAlignment.ALIGN_CENTER);
+
+		nextButton = new Button("next");
+		nextButton.addClickHandler(this);
+		horizontalPanel.add(nextButton);
+		horizontalPanel.setCellHorizontalAlignment(nextButton, HasHorizontalAlignment.ALIGN_CENTER);
+
+
+
+
 		//Fill the variableListBox
 		AsyncCallback<Collection<String>> callback = new AsyncCallback<Collection<String>>() {
-			
+
 			@Override
 			public void onSuccess(Collection<String> result) {
 				for(String variable: result)
 					variableListBox.addItem(variable);
 				generateButton.setEnabled(true);
-				
+
 			}
-			
+
 			@Override
 			public void onFailure(Throwable caught) {
 				Window.alert("Cant load variables"+caught.getMessage());
-				
+
 			}
 		};
-		
-		fileSvc.getVariables(callback);
-		
-		
-		
 
-		
-		
-		
+		fileSvc.getVariables(callback);
+
+
+
+
+
+
+
 	}
-	
-	
+
+
 	@Override
 	public void onClick(ClickEvent event) {
 		// TODO: Get urls for slideshow
+		Widget eventSource =(Widget) event.getSource();
 		
-		Date from, to;
-		from = fromDateBox.getValue();
-		to = toDateBox.getValue();
-		
-		if(from == null || to == null)
-		{
-			Window.alert("Date must be valid");
-			return;
-		}
-		Date today = new Date();
-		if(from.after(to) || from.after(today) || to.after(today))
-		{
-			Window.alert("from is after to\nOr One of the dates is after today's date" );
-			return;
-		}
-		generateButton.setEnabled(false);
-		AsyncCallback<List<ImageDescription>> callback = new AsyncCallback<List<ImageDescription>>() {
-			
-			@Override
-			public void onSuccess(List<ImageDescription> images) {
-				if(images == null || images.size() == 0){
-					Window.alert("result nuulll");
-					return;
+	
+		if(eventSource== generateButton){
+			Date from, to;
+			from = fromDateBox.getValue();
+			to = toDateBox.getValue();
+
+			if(from == null || to == null)
+			{
+				Window.alert("Date must be valid");
+				return;
+			}
+			Date today = new Date();
+			if(from.after(to) || from.after(today) || to.after(today))
+			{
+				Window.alert("From is after to\nOr one of the dates is after today's date" );
+				return;
+			}
+			generateButton.setEnabled(false);
+			AsyncCallback<List<ImageDescription>> callback = new AsyncCallback<List<ImageDescription>>() {
+
+				@Override
+				public void onSuccess(List<ImageDescription> images) {
+					if(images == null || images.size() == 0){
+						Window.alert("result nuulll");
+						return;
+					}
+
+					if(slideMan != null)
+						slideMan.stop();
+
+					slideMan = new SlideshowManager(baseImage, images,new Label(), 1);
+					startSlide();
+
+
 				}
-				
-				if(slideMan != null)
-					slideMan.stop();
-				
-				slideMan = new SlideshowManager(baseImage, images,imageDescriptionLabel, 1);
-				
-				
-			}
+
+				@Override
+				public void onFailure(Throwable caught) {
+					Window.alert("Error:"+caught.getMessage());
+
+				}
+			};
+
+			String variable = variableListBox.getItemText(variableListBox.getSelectedIndex());
+
+			fileSvc.getImages(from,to,variable,callback);
+			generateButton.setEnabled(true);
+
+		}
+		else if(eventSource == playButton)
+		{
 			
-			@Override
-			public void onFailure(Throwable caught) {
-				Window.alert("Error:"+caught.getMessage());
-				
-			}
-		};
-		
-		String variable = variableListBox.getItemText(variableListBox.getSelectedIndex());
-		
-		fileSvc.getImages(from,to,variable,callback);
-		
+			if(slideMan.isRunning())
+				stopSlide();
+			else
+				startSlide();
+		}
+		else if(eventSource == previousButton)
+		{
+			stopSlide();
+			slideMan.displayPreviousSlide();
+			
+		}
+		else if(eventSource == nextButton)
+		{
+			stopSlide();
+			slideMan.displayNextSlide();
+		}
+			
 	}
+	
+	private void stopSlide()
+	{
+		if(slideMan.isRunning())
+		{
+			slideMan.stop();
+			playButton.setText("play");
+		}
+	}
+	
+	private void startSlide()
+	{
+		if(!slideMan.isRunning())
+		{
+			slideMan.startRepeated();
+			playButton.setText("pause");
+		}
+	}
+
 }
+
+
+
+
+
