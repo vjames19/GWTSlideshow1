@@ -13,24 +13,21 @@ public class SlideshowManager {
 	private int delay;
 	private final static int MILLIS = 1000; 
 	private List<ImageDescription> images;
-	private final Label description;
+	
 	private Integer index = 0;
 	private boolean running = false;
-	public SlideshowManager(final Image image, final List<ImageDescription> images,final Label description, int delay)
+	public SlideshowManager(final Image image, final List<ImageDescription> images, int delay)
 	{
 		this.image = image;
 		this.images = images;
 		this.delay = delay;
-		this.description = description;
+		image.setUrl(images.get(0).getUrl());
 		
 		timer = new Timer() {
 			
 			@Override
 			public void run() {
-				
-				index = index+1 <images.size() ? index+1: 0;
-				image.setUrl(images.get(index).getUrl());
-				description.setText(images.get(index).getUrl());
+				displayNextSlide();
 				
 			}
 		};
@@ -69,7 +66,7 @@ public class SlideshowManager {
 	private void commonSlideInfo(int index)
 	{
 		image.setUrl(images.get(index).getUrl());
-		description.setText(images.get(index).getUrl());
+		
 	}
 	
 	public boolean isRunning()

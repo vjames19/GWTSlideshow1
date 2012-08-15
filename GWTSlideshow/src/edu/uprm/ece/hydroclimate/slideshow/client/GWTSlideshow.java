@@ -200,7 +200,7 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 					if(slideMan != null)
 						slideMan.stop();
 
-					slideMan = new SlideshowManager(baseImage, images,new Label(), 1);
+					slideMan = new SlideshowManager(baseImage, images, 1);
 					startSlide();
 
 
