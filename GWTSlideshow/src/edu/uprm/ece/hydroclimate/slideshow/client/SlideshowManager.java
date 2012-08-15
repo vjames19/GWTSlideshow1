@@ -14,6 +14,7 @@ public class SlideshowManager {
 	private final static int MILLIS = 1000; 
 	private List<ImageDescription> images;
 	private final Label description;
+	private Integer index = 0;
 	public SlideshowManager(final Image image, final List<ImageDescription> images,final Label description, int delay)
 	{
 		this.image = image;
@@ -22,7 +23,7 @@ public class SlideshowManager {
 		this.description = description;
 		
 		timer = new Timer() {
-			int index = 0;
+			
 			@Override
 			public void run() {
 				
@@ -45,7 +46,27 @@ public class SlideshowManager {
 	public void stop()
 	{
 		timer.cancel();
+		
 	}
+	
+	public void displayNextSlide()
+	{
+		index = index+1 <images.size() ? index+1: 0;
+		commonSlideInfo(index);
+	}
+	
+	public void displayPreviousSlide()
+	{
+		index = index-1 <0? images.size() -1: index-1;
+		commonSlideInfo(index);
+	}
+	
+	private void commonSlideInfo(int index)
+	{
+		image.setUrl(images.get(index).getUrl());
+		description.setText(images.get(index).getUrl());
+	}
+	
 	
 	
 	
