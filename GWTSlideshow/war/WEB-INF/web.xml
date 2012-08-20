@@ -12,6 +12,10 @@
 	<servlet>
 		<servlet-name>FileService</servlet-name>
 		<servlet-class>edu.uprm.ece.hydroclimate.slideshow.server.FileServiceImpl</servlet-class>
+		<init-param>
+		<param-name>imageDir</param-name>
+		<param-value>/var/www/GOES-PRWEB_RESULTS</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>FileService</servlet-name>

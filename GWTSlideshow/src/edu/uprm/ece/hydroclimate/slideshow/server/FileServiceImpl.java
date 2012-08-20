@@ -25,7 +25,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -39,13 +43,23 @@ public class FileServiceImpl extends RemoteServiceServlet implements FileService
 	 */
 	private static final long serialVersionUID = -5022633506486789297L;
 	private Map<String,String> variables = new TreeMap<String,String>();
-	private final String IMAGE_DIR = "images";
-	private File dir = new File(IMAGE_DIR);
+	private String IMAGE_DIR;
+	private File dir;
 	private FileFilter  photoFilter = new PhotoFilter();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+	private Properties props;
 	public FileServiceImpl()
 	{
 		loadVariablesNames();
+	}
+	
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		// TODO Auto-generated method stub
+		super.init(config);
+		IMAGE_DIR = config.getInitParameter("imageDir");
+		dir = new File(IMAGE_DIR);
+		
 	}
 	
 	private void loadVariablesNames()
