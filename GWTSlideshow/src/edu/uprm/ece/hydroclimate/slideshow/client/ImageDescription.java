@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 public class ImageDescription implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3513373212406281754L;
 	private String url;
 	private String description;
 	

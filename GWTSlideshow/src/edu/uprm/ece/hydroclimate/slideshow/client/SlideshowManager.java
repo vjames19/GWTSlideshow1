@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Label;
 
 public class SlideshowManager {
 	
@@ -54,16 +53,16 @@ public class SlideshowManager {
 	public void displayNextSlide()
 	{
 		index = index+1 <images.size() ? index+1: 0;
-		commonSlideInfo(index);
+		setSlideInfo(index);
 	}
 	
 	public void displayPreviousSlide()
 	{
 		index = index-1 <0? images.size() -1: index-1;
-		commonSlideInfo(index);
+		setSlideInfo(index);
 	}
 	
-	private void commonSlideInfo(int index)
+	private void setSlideInfo(int index)
 	{
 		image.setUrl(images.get(index).getUrl());
 		

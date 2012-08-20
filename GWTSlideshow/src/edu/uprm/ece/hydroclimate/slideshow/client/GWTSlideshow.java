@@ -23,6 +23,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
@@ -50,7 +51,6 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 	private Button generateButton;
 	private ListBox variableListBox;
 	private Image baseImage;
-	private Button play, next, previous;
 	private FileServiceAsync fileSvc = FileService.Util.getInstance();
 	private SlideshowManager slideMan;
 	private HorizontalPanel horizontalPanel;
@@ -85,9 +85,9 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 		toLabel = new Label("To:");
 		variableNameLabel = new Label("Variable:");
 		fromDateBox = new DateBox();
-		fromDateBox.setFormat(new DefaultFormat(DateTimeFormat.getShortDateFormat()));
+		fromDateBox.setFormat(new DefaultFormat(DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT)));
 		toDateBox = new DateBox();
-		toDateBox.setFormat(new DefaultFormat(DateTimeFormat.getShortDateFormat()));
+		toDateBox.setFormat(new DefaultFormat(DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT)));
 		fromDateBox.getDatePicker().setValue(new Date());
 		toDateBox.getDatePicker().setValue(new Date());
 
@@ -169,8 +169,8 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 	public void onClick(ClickEvent event) {
 		// TODO: Get urls for slideshow
 		Widget eventSource =(Widget) event.getSource();
-		
-	
+
+
 		if(eventSource== generateButton){
 			Date from, to;
 			from = fromDateBox.getValue();
@@ -219,28 +219,31 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 			generateButton.setEnabled(true);
 
 		}
-		else if(eventSource == playButton)
+		else if(slideMan != null)
 		{
-			
-			if(slideMan.isRunning())
+			if(eventSource == playButton)
+			{
+
+				if(slideMan.isRunning())
+					stopSlide();
+				else
+					startSlide();
+			}
+			else if(eventSource == previousButton)
+			{
 				stopSlide();
-			else
-				startSlide();
+				slideMan.displayPreviousSlide();
+
+			}
+			else if(eventSource == nextButton)
+			{
+				stopSlide();
+				slideMan.displayNextSlide();
+			}
 		}
-		else if(eventSource == previousButton)
-		{
-			stopSlide();
-			slideMan.displayPreviousSlide();
-			
-		}
-		else if(eventSource == nextButton)
-		{
-			stopSlide();
-			slideMan.displayNextSlide();
-		}
-			
+
 	}
-	
+
 	private void stopSlide()
 	{
 		if(slideMan.isRunning())
@@ -249,7 +252,7 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 			playButton.setText("play");
 		}
 	}
-	
+
 	private void startSlide()
 	{
 		if(!slideMan.isRunning())

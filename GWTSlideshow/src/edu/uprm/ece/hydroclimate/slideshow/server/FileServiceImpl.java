@@ -34,6 +34,10 @@ import edu.uprm.ece.hydroclimate.slideshow.client.ImageDescription;
 
 public class FileServiceImpl extends RemoteServiceServlet implements FileService {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5022633506486789297L;
 	private Map<String,String> variables = new TreeMap<String,String>();
 	private final String IMAGE_DIR = "images";
 	private File dir = new File(IMAGE_DIR);
@@ -54,7 +58,11 @@ public class FileServiceImpl extends RemoteServiceServlet implements FileService
 				return pathname.isDirectory();
 			}
 		});
-		
+		if(result == null)
+		{
+			System.out.println("Directory null");
+			return;
+		}
 		for(File file: result)
 			variables.put(file.getName(), file.getPath());
 		
