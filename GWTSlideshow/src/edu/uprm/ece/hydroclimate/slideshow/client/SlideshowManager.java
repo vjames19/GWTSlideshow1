@@ -34,6 +34,15 @@ public class SlideshowManager {
 		
 	}
 	
+	public void setDelay(int delayInSeconds)
+	{
+		delay = delayInSeconds;
+	}
+	
+	public int getDelay(){
+		return delay;
+	}
+	
 	public void startRepeated()
 	{
 		if(isRunning())

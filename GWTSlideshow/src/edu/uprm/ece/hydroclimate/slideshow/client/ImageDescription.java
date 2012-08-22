@@ -2,7 +2,7 @@ package edu.uprm.ece.hydroclimate.slideshow.client;
 
 import java.io.Serializable;
 
-public class ImageDescription implements Serializable {
+public class ImageDescription implements Serializable, Comparable<ImageDescription> {
 
 	/**
 	 * 
@@ -34,6 +34,13 @@ public class ImageDescription implements Serializable {
 		return "ImageDescription [url=" + url + ", description=" + description
 				+ "]";
 	}
+	@Override
+	public int compareTo(ImageDescription o) {
+		// TODO Auto-generated method stub
+		return this.url.compareTo(o.url);
+	}
+	
+	
 	
 	
 }

@@ -9,14 +9,23 @@
 	<welcome-file-list>
 		<welcome-file>GWTSlideshow.html</welcome-file>
 	</welcome-file-list>
+	
 	<servlet>
 		<servlet-name>FileService</servlet-name>
 		<servlet-class>edu.uprm.ece.hydroclimate.slideshow.server.FileServiceImpl</servlet-class>
 		<init-param>
 		<param-name>imageDir</param-name>
 		<param-value>/var/www/GOES-PRWEB_RESULTS</param-value>
+<!-- 		<param-value>C:\Users\TheZen\Documents\academic.uprm.edu\hdc\GOES-PRWEB_RESULTS</param-value> -->
 		</init-param>
+		
+		<init-param>
+		<param-name>hostUrl</param-name>
+		<param-value>http://136.145.116.40/</param-value>
+<!-- 		<param-value>http://academic.uprm.edu/hdc/</param-value> -->
+		</init-param>	
 	</servlet>
+	
 	<servlet-mapping>
 		<servlet-name>FileService</servlet-name>
 		<url-pattern>/edu.uprm.ece.hydroclimate.slideshow.GWTSlideshow/FileService</url-pattern>

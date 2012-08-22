@@ -40,8 +40,18 @@ public interface FileService extends RemoteService {
 	}
 	
 	
-	
+	/**
+	 * Gets the different variable names 
+	 * @return Collection of all the variable names
+	 */
 	public Collection<String> getVariables();
 
+	/**
+	 * Gets the images based on the [from,to] data range and the variableName
+	 * @param from date
+	 * @param to date
+	 * @param variableName name of the variable to look for the results
+	 * @return All of the images specified on the criteria
+	 */
 	List<ImageDescription> getImages(Date from, Date to, String variableName);
 }

@@ -20,12 +20,11 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeMap;
 
 import javax.servlet.ServletConfig;
@@ -47,69 +46,29 @@ public class FileServiceImpl extends RemoteServiceServlet implements FileService
 	private File dir;
 	private FileFilter  photoFilter = new PhotoFilter();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-	private Properties props;
-	public FileServiceImpl()
-	{
-		loadVariablesNames();
-	}
+	private String HOST_URL;
+	
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		// TODO Auto-generated method stub
 		super.init(config);
 		IMAGE_DIR = config.getInitParameter("imageDir");
+		HOST_URL = config.getInitParameter("hostUrl");
+		System.out.println(IMAGE_DIR);
 		dir = new File(IMAGE_DIR);
-		
-	}
-	
-	private void loadVariablesNames()
-	{
-		File[] result = dir.listFiles(new FileFilter() {
-			
-			@Override
-			public boolean accept(File pathname) {
-				// TODO Auto-generated method stub
-				return pathname.isDirectory();
-			}
-		});
-		if(result == null)
-		{
-			System.out.println("Directory null");
-			return;
-		}
-		for(File file: result)
-			variables.put(file.getName(), file.getPath());
-		
-		System.out.println("Variables initialized");
-			
-		
+		loadVariablesNames();
 		
 		
 	}
 	
-	@Override
-	public List<ImageDescription> getImages(Date from, Date to,String variableName) {
-		
-		if(!variables.containsKey(variableName))
-			return null;
-		String path = variables.get(variableName);
-		System.out.println(path);
-		File dir = new File(path);
-		File[] photos = dir.listFiles(photoFilter);
-		System.out.println(Arrays.toString(photos));
-		
-		List<ImageDescription> images =checkPaths(from,to,photos); 
-		System.out.println(images);
-		return images;
-		
-	}
 	
 	private List<ImageDescription> checkPaths(Date from, Date to, File[] photos)
 	{
 		List<ImageDescription> images= new ArrayList<ImageDescription>();
 		for(File photo: photos)
 		{
-			String name = photo.getName();
+			String name = photo.getPath();
 			System.out.println(name);
 			//Split non numeric fields
 			String[] fields = name.split("\\D+");
@@ -126,15 +85,15 @@ public class FileServiceImpl extends RemoteServiceServlet implements FileService
 			System.out.println(photoDate);
 			if(photoDate != null)
 			{
-				System.out.println("inside not null");
-				System.out.println("From:"+from);
-				System.out.println("to:"+to);
-				System.out.println("compare from:"+photoDate.compareTo(from));
-				System.out.println("compare to:"+photoDate.compareTo(to));
+
 				if(photoDate.compareTo(from)>=0 && photoDate.compareTo(to)<=0)
 				{
 					System.out.println("Adding images");
-					images.add(new ImageDescription(photo.getPath(), photoDate.toString()));
+					String path = photo.getPath();
+					System.out.println("Real path:"+getServletContext().getRealPath(path));
+					//images.add(new ImageDescription("http://136.145.116.40/"+
+					images.add(new ImageDescription(HOST_URL+
+					path.substring(path.indexOf("GOES-PRWEB_RESULTS")), photoDate.toString()));
 				}
 			}
 		}
@@ -142,8 +101,23 @@ public class FileServiceImpl extends RemoteServiceServlet implements FileService
 		return images;
 	}
 	
-
-
+	@Override
+	public List<ImageDescription> getImages(Date from, Date to,String variableName) {
+		
+		if(!variables.containsKey(variableName))
+			return null;
+		String path = variables.get(variableName);
+		System.out.println(path);
+		File dir = new File(path);
+		File[] photos = dir.listFiles(photoFilter);
+		
+		
+		List<ImageDescription> images =checkPaths(from,to,photos); 
+		Collections.sort(images);
+		return images;
+		
+	}
+	
 	@Override
 	public Collection<String> getVariables() {
 		
@@ -151,16 +125,44 @@ public class FileServiceImpl extends RemoteServiceServlet implements FileService
 		return result;
 	}
 	
-	
-	public static class PhotoFilter implements FileFilter{
 
-		public PhotoFilter(){}
+
+
+	
+	static class PhotoFilter implements FileFilter{
+	
 		private static final String JPEG = ".jpg";
+		public PhotoFilter(){}
 		@Override
 		public boolean accept(File file) {
-
+	
 			return file.isFile() && file.getPath().endsWith(JPEG);
 		}
+		
+	}
+
+
+
+
+
+	private void loadVariablesNames()
+	{
+		//List directories the directories inside that folder will be the variables
+		File[] result = dir.listFiles(new FileFilter() {
+			
+			@Override
+			public boolean accept(File pathname) {
+				//accept directories
+				return pathname.isDirectory();
+			}
+		});
+		if(result == null)
+		{
+			System.out.println("Directory null");
+			return;
+		}
+		for(File file: result)
+			variables.put(file.getName(), file.getPath());
 		
 	}
 }

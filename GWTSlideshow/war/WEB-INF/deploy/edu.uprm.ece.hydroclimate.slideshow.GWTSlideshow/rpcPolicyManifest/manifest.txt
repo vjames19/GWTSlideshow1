@@ -1,2 +1,3 @@
 # Module edu.uprm.ece.hydroclimate.slideshow.GWTSlideshow
 # RPC service class, partial path of RPC policy file
+edu.uprm.ece.hydroclimate.slideshow.client.FileService, E81E22B47D25DCD8C4C72401146F6267.gwt.rpc

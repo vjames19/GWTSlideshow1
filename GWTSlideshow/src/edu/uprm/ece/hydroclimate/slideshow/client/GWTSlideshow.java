@@ -69,7 +69,7 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 		Label fromLabel, toLabel, variableNameLabel;
 
 
-
+		
 
 		mainPanel = new VerticalPanel();
 		mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -107,11 +107,13 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 		mainPanel.add(inputTable);
 		inputTable.getFlexCellFormatter().setColSpan(1, 2, 2);
 
-		baseImage = new Image("images/Koala.jpg");
+		//setup image
+		baseImage = new Image();
 		mainPanel.add(baseImage);
 		baseImage.setVisible(true);
 		baseImage.setPixelSize(800,500);
 
+		//south
 		horizontalPanel = new HorizontalPanel();
 		mainPanel.add(horizontalPanel);
 		mainPanel.setCellHorizontalAlignment(horizontalPanel, HasHorizontalAlignment.ALIGN_CENTER);
@@ -137,7 +139,7 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 
 
 		//Fill the variableListBox
-		AsyncCallback<Collection<String>> callback = new AsyncCallback<Collection<String>>() {
+		fileSvc.getVariables(new AsyncCallback<Collection<String>>() {
 
 			@Override
 			public void onSuccess(Collection<String> result) {
@@ -152,9 +154,9 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 				Window.alert("Cant load variables"+caught.getMessage());
 
 			}
-		};
+		});
 
-		fileSvc.getVariables(callback);
+		
 
 
 
@@ -167,7 +169,7 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 
 	@Override
 	public void onClick(ClickEvent event) {
-		// TODO: Get urls for slideshow
+		
 		Widget eventSource =(Widget) event.getSource();
 
 
@@ -184,7 +186,8 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 			Date today = new Date();
 			if(from.after(to) || from.after(today) || to.after(today))
 			{
-				Window.alert("From is after to\nOr one of the dates is after today's date" );
+				Window.alert("Error:" +
+						"--From is after to\n--Or one of the dates is after today's date" );
 				return;
 			}
 			generateButton.setEnabled(false);
@@ -193,7 +196,7 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 				@Override
 				public void onSuccess(List<ImageDescription> images) {
 					if(images == null || images.size() == 0){
-						Window.alert("result nuulll");
+						Window.alert("No Images for that range of dates");
 						return;
 					}
 
@@ -208,7 +211,8 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 
 				@Override
 				public void onFailure(Throwable caught) {
-					Window.alert("Error:"+caught.getMessage());
+					Window.alert("Error:Something unexpected happened please\n" +
+							"contact the admin");
 
 				}
 			};
