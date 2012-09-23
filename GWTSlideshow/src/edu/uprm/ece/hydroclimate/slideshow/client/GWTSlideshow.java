@@ -112,7 +112,8 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 		mainPanel.add(baseImage);
 		baseImage.setVisible(true);
 		baseImage.setPixelSize(800,500);
-
+		
+		
 		//south
 		horizontalPanel = new HorizontalPanel();
 		mainPanel.add(horizontalPanel);
