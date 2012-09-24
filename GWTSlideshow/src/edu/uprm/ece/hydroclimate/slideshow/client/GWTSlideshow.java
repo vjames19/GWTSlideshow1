@@ -213,7 +213,7 @@ public class GWTSlideshow implements EntryPoint, ClickHandler {
 				@Override
 				public void onFailure(Throwable caught) {
 					Window.alert("Error:Something unexpected happened please\n" +
-							"contact the admin");
+							"try again: "+ caught);
 
 				}
 			};

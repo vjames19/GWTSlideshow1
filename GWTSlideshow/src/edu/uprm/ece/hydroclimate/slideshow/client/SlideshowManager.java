@@ -17,6 +17,7 @@ public class SlideshowManager {
 	private boolean running = false;
 	public SlideshowManager(final Image image, final List<ImageDescription> images, int delay)
 	{
+//		System.out.println(images);
 		this.image = image;
 		this.images = images;
 		this.delay = delay;

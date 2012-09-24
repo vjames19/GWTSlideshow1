@@ -14,18 +14,16 @@
  *******************************************************************************/
 package edu.uprm.ece.hydroclimate.slideshow.server;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -42,123 +40,79 @@ public class FileServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	private static final long serialVersionUID = -5022633506486789297L;
-	private Map<String, String> variables = new TreeMap<String, String>();
-	private String IMAGE_DIR;
-	private File dir;
-	private FileFilter photoFilter = new PhotoFilter();
-	private DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-	private String HOST_URL;
+	private static final String GET_IMAGES = "SELECT name, url FROM files WHERE variableName = ? and dateCreated between ? and ?";
+	private static final String GET_VARIABLES = "SELECT variableName from variables";
+	private final Properties props = new Properties();
+	private static final List<String> variables = new ArrayList<String>(25);
 
-	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		// TODO Auto-generated method stub
 		super.init(config);
-		IMAGE_DIR = config.getInitParameter("imageDir");
-		HOST_URL = config.getInitParameter("hostUrl");
-		System.out.println(IMAGE_DIR);
-		dir = new File(IMAGE_DIR);
-		loadVariablesNames();
+		props.put("host", config.getInitParameter("host"));
+		props.put("user", config.getInitParameter("user"));
+		props.put("password", config.getInitParameter("password"));
+		loadVariableNames();
 
 	}
-	
 
-
-	private List<ImageDescription> checkPaths(Date from, Date to, File[] photos) {
-		List<ImageDescription> images = new ArrayList<ImageDescription>();
-		for (File photo : photos) {
-			String name = photo.getPath();
-			System.out.println(name);
-			// Split non numeric fields
-			String[] fields = name.split("\\D+");
-			if (fields.length == 0)
-				continue;
-			Date photoDate = null;
-			try {
-				photoDate = dateFormat.parse(fields[fields.length - 1].trim());
-				System.out.println("photoDate:" + photoDate);
-			} catch (ParseException e) {
-				// TODO Logger
-				e.printStackTrace();
-			}
-			System.out.println(photoDate);
-			if (photoDate != null) {
-
-				if (photoDate.compareTo(from) >= 0
-						&& photoDate.compareTo(to) <= 0) {
-					System.out.println("Adding images");
-					String path = photo.getPath();
-					System.out.println("Real path:"
-							+ getServletContext().getRealPath(path));
-					// images.add(new ImageDescription("http://136.145.116.40/"+
-					images.add(new ImageDescription(
-							HOST_URL
-									+ path.substring(path
-											.indexOf("GOES-PRWEB_RESULTS")),
-							photoDate.toString()));
-				}
-			}
+	private Connection getConnection() throws SQLException
+	{
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			System.err.println(e);
 		}
-
-		return images;
+		return DriverManager.getConnection(props.getProperty("host"), props);
 	}
 
 	@Override
 	public List<ImageDescription> getImages(Date from, Date to,
 			String variableName) {
-
-		if (!variables.containsKey(variableName))
+		if( !variables.contains(variableName))
 			return null;
-		String path = variables.get(variableName);
-		System.out.println(path);
-		File dir = new File(path);
-		File[] photos = dir.listFiles(photoFilter);
 
-		List<ImageDescription> images = checkPaths(from, to, photos);
-		Collections.sort(images);
+		List<ImageDescription> images = new ArrayList<ImageDescription>();
+		try {
+			Connection conn = getConnection();
+			PreparedStatement ps = conn.prepareStatement(GET_IMAGES);
+			int i =0;
+
+			ps.setString(++i, variableName);
+			ps.setDate(++i, new java.sql.Date(from.getTime()));
+			ps.setDate(++i, new java.sql.Date(to.getTime()));
+			
+			ResultSet rs = ps.executeQuery();
+			while(rs.next())
+			{
+				images.add(new ImageDescription(rs.getString("url"), rs.getString("name")));
+			}
+			
+		} catch (SQLException e) {
+			System.out.println(e);
+		}
+//		System.out.println(images);
 		return images;
 
 	}
 
 	@Override
 	public Collection<String> getVariables() {
-
-		List<String> result = new ArrayList<String>(variables.keySet());
-		return result;
+		return variables;
 	}
 
-	static class PhotoFilter implements FileFilter {
-
-		private static final String JPEG = ".jpg";
-
-		public PhotoFilter() {
-		}
-
-		@Override
-		public boolean accept(File file) {
-
-			return file.isFile() && file.getPath().endsWith(JPEG);
-		}
-
-	}
-
-	private void loadVariablesNames() {
-		// List directories the directories inside that folder will be the
-		// variables
-		File[] result = dir.listFiles(new FileFilter() {
-
-			@Override
-			public boolean accept(File pathname) {
-				// accept directories
-				return pathname.isDirectory();
+	private void loadVariableNames() {
+		try {
+			Connection conn = getConnection();
+			PreparedStatement ps = conn.prepareStatement(GET_VARIABLES);
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				variables.add(rs.getString("variableName"));
 			}
-		});
-		if (result == null) {
-			System.out.println("Directory null");
-			return;
+		} catch (SQLException e) {
+			System.out.println(e);
 		}
-		for (File file : result)
-			variables.put(file.getName(), file.getPath());
-
 	}
+
 }
